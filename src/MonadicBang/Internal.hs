@@ -17,7 +17,7 @@ module MonadicBang.Internal where
 import Prelude hiding (log)
 import Control.Applicative
 import Control.Monad.Trans.Class
-import Control.Monad.Trans.Maybe
+import Control.Monad.Trans.Maybe hiding (hoistMaybe)
 import Control.Monad.Trans.Identity
 import Control.Carrier.Reader
 import Control.Carrier.Writer.Strict
@@ -264,9 +264,9 @@ instance Handle Pat where
   type Effects Pat = Fill :+: State InScope
   handle' = \case
     VarPat xv name -> tellName name $> VarPat xv name
-    AsPat xa name pat -> do
+    AsPat xa name tok pat -> do
       tellName name
-      AsPat xa name <$> traverse (liftMaybeT . evacPats) pat
+      AsPat xa name tok <$> traverse (liftMaybeT . evacPats) pat
 
     _ -> empty
     where

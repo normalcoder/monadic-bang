@@ -18,17 +18,18 @@ data Error = ErrOutOfScopeVariable OccName
 type PsErrors = Writer (Messages PsError)
 
 customError :: Error -> PsError
-customError = PsUnknownMessage . \cases
-  ErrBangOutsideOfDo -> DiagnosticMessage
-    { diagMessage = mkDecorated [text "Monadic ! outside of a 'do'-block is not allowed"]
-    , diagReason = ErrorWithoutFlag
-    , diagHints = [SuggestMissingDo]
-    }
-  (ErrOutOfScopeVariable name) -> DiagnosticMessage
-    { diagMessage = mkDecorated [text "The variable " <> ppr name <> text " cannot be used inside of ! here, since its desugaring would escape its scope"]
-    , diagReason = ErrorWithoutFlag
-    , diagHints = [UnknownHint $ text "Maybe you meant to open a new 'do'-block after " <> ppr name <> text " has been bound?"]
-    }
+customError e = error $ "monadic-bang customError: " ++ show e
+-- customError = PsUnknownMessage . \cases
+--   ErrBangOutsideOfDo -> DiagnosticMessage
+--     { diagMessage = mkDecorated [text "Monadic ! outside of a 'do'-block is not allowed"]
+--     , diagReason = ErrorWithoutFlag
+--     , diagHints = [SuggestMissingDo]
+--     }
+--   (ErrOutOfScopeVariable name) -> DiagnosticMessage
+--     { diagMessage = mkDecorated [text "The variable " <> ppr name <> text " cannot be used inside of ! here, since its desugaring would escape its scope"]
+--     , diagReason = ErrorWithoutFlag
+--     , diagHints = [UnknownHint $ text "Maybe you meant to open a new 'do'-block after " <> ppr name <> text " has been bound?"]
+--     }
 
 tellPsError :: Has PsErrors sig m => PsError -> SrcSpan -> m ()
 tellPsError err srcSpan = tell . singleMessage $ MsgEnvelope srcSpan neverQualify err SevError
